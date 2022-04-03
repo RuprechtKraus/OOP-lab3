@@ -25,16 +25,6 @@ struct SpeedRange
 	int upperBound;
 };
 
-const std::map<Gear, SpeedRange> GearSpeed = {
-	{ Gear::Rear, SpeedRange{ 0, 20 } },
-	{ Gear::Neutral, SpeedRange{ 0, std::numeric_limits<int>::max() } },
-	{ Gear::First, SpeedRange{ 0, 30 } },
-	{ Gear::Second, SpeedRange{ 20, 50 } },
-	{ Gear::Third, SpeedRange{ 30, 60 } },
-	{ Gear::Fourth, SpeedRange{ 40, 90 } },
-	{ Gear::Fifth, SpeedRange{ 50, 150 } }
-};
-
 class Car
 {
 public:
@@ -49,6 +39,16 @@ public:
 	bool SetSpeed(int speed);
 
 private:
+	const std::map<Gear, SpeedRange> gearSpeed = {
+		{ Gear::Rear, SpeedRange{ 0, 20 } },
+		{ Gear::Neutral, SpeedRange{ 0, std::numeric_limits<int>::max() } },
+		{ Gear::First, SpeedRange{ 0, 30 } },
+		{ Gear::Second, SpeedRange{ 20, 50 } },
+		{ Gear::Third, SpeedRange{ 30, 60 } },
+		{ Gear::Fourth, SpeedRange{ 40, 90 } },
+		{ Gear::Fifth, SpeedRange{ 50, 150 } }
+	};
+
 	int m_speed{ 0 };
 	Direction m_direction{ Direction::None };
 	Gear m_gear{ Gear::Neutral };
