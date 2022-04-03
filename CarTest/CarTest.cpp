@@ -33,15 +33,15 @@ namespace CarTest
 			Assert::IsTrue(car.GetSpeed() == 0, L"Speed isn't 0");
 		}
 
-		TEST_METHOD(TestSetRearGear)
+		TEST_METHOD(TestSetReverseGear)
 		{
 			Car car;
 			car.TurnOnEngine();
 
-			bool gearSetSuccess = car.SetGear(Gear::Rear);
+			bool gearSetSuccess = car.SetGear(Gear::Reverse);
 
 			Assert::IsTrue(gearSetSuccess, L"Gear wasn't successfully set");
-			Assert::IsTrue(car.GetGear() == Gear::Rear, L"Car isn't at rear gear");
+			Assert::IsTrue(car.GetGear() == Gear::Reverse, L"Car isn't at Reverse gear");
 		}
 
 		TEST_METHOD(TestSetAllGearsInTurn)
@@ -129,7 +129,7 @@ namespace CarTest
 			Car car;
 			car.TurnOnEngine();
 
-			bool gearSetSuccess{ car.SetGear(Gear::Rear) };
+			bool gearSetSuccess{ car.SetGear(Gear::Reverse) };
 			bool speedSetSuccess{ car.SetSpeed(20) };
 
 			Assert::IsTrue(gearSetSuccess, L"Gear wasn't successfully set");
@@ -138,12 +138,32 @@ namespace CarTest
 			Assert::AreEqual(20, car.GetSpeed(), L"Speed isn't 20");
 		}
 
+
+		TEST_METHOD(TestTrySetGearWithEngineOff)
+		{
+			Car car;
+			
+			bool gearSetSuccess{ car.SetGear(Gear::First) };
+
+			Assert::IsFalse(gearSetSuccess, L"Car is switched into first gear with engine off");
+		}
+
+
+		TEST_METHOD(TestTrySetSpeedWithEngineOff)
+		{
+			Car car;
+
+			bool speedSetSuccess{ car.SetSpeed(20) };
+
+			Assert::IsFalse(speedSetSuccess, L"Car speed is set to 20  with engine off");
+		}
+
 		TEST_METHOD(TestTrySetFirstGearAtMovingBackwards)
 		{
 			Car car;
 
 			car.TurnOnEngine();
-			car.SetGear(Gear::Rear);
+			car.SetGear(Gear::Reverse);
 			car.SetSpeed(20);
 
 			bool gearSetSuccess{ car.SetGear(Gear::First) };
@@ -151,12 +171,13 @@ namespace CarTest
 			Assert::IsFalse(gearSetSuccess, L"Gear successfully set");
 		}
 
-		TEST_METHOD(TestTrySetFirstGearFromNeutralGearMovingBackwards)
+
+		TEST_METHOD(TestTrySetFirstGearFromNeutralGearWhileMovingBackwards)
 		{
 			Car car;
 
 			car.TurnOnEngine();
-			car.SetGear(Gear::Rear);
+			car.SetGear(Gear::Reverse);
 			car.SetSpeed(20);
 			car.SetGear(Gear::Neutral);
 			
@@ -184,6 +205,16 @@ namespace CarTest
 			bool speedSetSuccess{ car.SetSpeed(std::numeric_limits<int>::max()) };
 
 			Assert::IsFalse(speedSetSuccess, L"Set speed exceeding upper bound");
+		}
+
+		TEST_METHOD(TestTurnOffEngine)
+		{
+			Car car;
+			car.TurnOnEngine();
+
+			bool turnOffEngineSuccess{ car.TurnOffEngine() };
+
+			Assert::IsTrue(turnOffEngineSuccess, L"Engine isn't off");
 		}
 
 		TEST_METHOD(TestTryTurnOffEngineWhileMoving)

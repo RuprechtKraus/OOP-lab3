@@ -3,7 +3,7 @@
 
 enum class Gear
 {
-	Rear = -1,
+	Reverse = -1,
 	Neutral,
 	First,
 	Second,
@@ -21,8 +21,8 @@ enum class Direction
 
 struct SpeedRange
 {
-	int lowerBound;
-	int upperBound;
+	int min;
+	int max;
 };
 
 class Car
@@ -32,15 +32,29 @@ public:
 	int GetSpeed() const;
 	Gear GetGear() const;
 	Direction GetDirection() const;
-
 	bool TurnOnEngine();
 	bool TurnOffEngine();
 	bool SetGear(Gear gear);
 	bool SetSpeed(int speed);
 
 private:
-	const std::map<Gear, SpeedRange> gearSpeed = {
-		{ Gear::Rear, SpeedRange{ 0, 20 } },
+	bool SetReverseGear();
+	bool CanSetReverseGear() const;
+	bool SetNeutralGear();
+	bool CanSetFirstGear() const;
+	bool SetFirstGear();
+	bool CanSetSecondGear() const;
+	bool SetSecondGear();
+	bool CanSetThirdGear() const;
+	bool SetThirdGear();
+	bool CanSetFourthGear() const;
+	bool SetFourthGear();
+	bool CanSetFifthGear() const;
+	bool SetFifthGear();
+	bool CanTurnOffEngine() const;
+
+	const std::map<Gear, SpeedRange> gearSpeedRanges = {
+		{ Gear::Reverse, SpeedRange{ 0, 20 } },
 		{ Gear::Neutral, SpeedRange{ 0, std::numeric_limits<int>::max() } },
 		{ Gear::First, SpeedRange{ 0, 30 } },
 		{ Gear::Second, SpeedRange{ 20, 50 } },
