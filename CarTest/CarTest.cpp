@@ -138,7 +138,6 @@ namespace CarTest
 			Assert::AreEqual(20, car.GetSpeed(), L"Speed isn't 20");
 		}
 
-
 		TEST_METHOD(TestTrySetGearWithEngineOff)
 		{
 			Car car;
@@ -147,7 +146,6 @@ namespace CarTest
 
 			Assert::IsFalse(gearSetSuccess, L"Car is switched into first gear with engine off");
 		}
-
 
 		TEST_METHOD(TestTrySetSpeedWithEngineOff)
 		{
@@ -170,7 +168,6 @@ namespace CarTest
 
 			Assert::IsFalse(gearSetSuccess, L"Gear successfully set");
 		}
-
 
 		TEST_METHOD(TestTrySetFirstGearFromNeutralGearWhileMovingBackwards)
 		{

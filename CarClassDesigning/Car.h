@@ -1,30 +1,7 @@
 #pragma once
+#include "Gear.h"
+#include "Direction.h"
 #include <map>
-#include <string>
-
-enum class Gear
-{
-	Reverse = -1,
-	Neutral,
-	First,
-	Second,
-	Third,
-	Fourth,
-	Fifth
-};
-
-enum class Direction
-{
-	Backward,
-	Forward,
-	None
-};
-
-struct SpeedRange
-{
-	int min;
-	int max;
-};
 
 class Car
 {
@@ -39,6 +16,12 @@ public:
 	bool SetSpeed(int speed);
 
 private:
+	struct SpeedRange
+	{
+		int min;
+		int max;
+	};
+
 	bool SetReverseGear();
 	bool CanSetReverseGear() const;
 	bool SetNeutralGear();
