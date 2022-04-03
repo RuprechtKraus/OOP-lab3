@@ -73,7 +73,7 @@ namespace CarTest
 			Assert::IsTrue(gearSetSuccess, L"Gear wasn't successfully set");
 			Assert::IsTrue(speedSetSuccess, L"Speed wasn't successfully set");
 			Assert::IsTrue(car.GetGear() == Gear::Third, L"Car isn't at third gear");
-			Assert::AreEqual(40, car.GetSpeed(), L"Speed isn't 50");
+			Assert::AreEqual(50, car.GetSpeed(), L"Speed isn't 50");
 
 			gearSetSuccess = car.SetGear(Gear::Fourth);
 			speedSetSuccess = car.SetSpeed(70);
@@ -222,6 +222,7 @@ namespace CarTest
 			Car car;
 
 			car.TurnOnEngine();
+			car.SetGear(Gear::First);
 			car.SetSpeed(20);
 			
 			bool turnOffEngineSuccess{ car.TurnOffEngine() };

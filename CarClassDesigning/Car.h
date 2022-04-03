@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include <string>
 
 enum class Gear
 {
@@ -52,6 +53,8 @@ private:
 	bool CanSetFifthGear() const;
 	bool SetFifthGear();
 	bool CanTurnOffEngine() const;
+	bool CanSetSpeed(int speed) const;
+	void ChangeDirection();
 
 	const std::map<Gear, SpeedRange> gearSpeedRanges = {
 		{ Gear::Reverse, SpeedRange{ 0, 20 } },

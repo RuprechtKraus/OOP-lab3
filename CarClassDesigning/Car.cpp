@@ -67,7 +67,7 @@ bool Car::SetGear(Gear gear)
 	case Gear::Fifth:
 		return SetFifthGear();
 	default:
-		break;
+		throw std::invalid_argument("Unexpected gear value");
 	}
 
 	return false;
@@ -86,7 +86,7 @@ bool Car::SetReverseGear()
 
 bool Car::CanSetReverseGear() const
 {
-	return m_speed && m_isEngineTurnedOn;
+	return m_speed == 0 && m_isEngineTurnedOn;
 }
 
 bool Car::SetNeutralGear()
@@ -112,7 +112,8 @@ bool Car::CanSetFirstGear() const
 
 	return ((m_gear != Gear::Reverse && 
 		m_speed >= speedRange.min && 
-		m_speed <= speedRange.max) || 
+		m_speed <= speedRange.max && 
+		m_direction != Direction::Backward) || 
 		(m_gear == Gear::Reverse && m_speed == 0)) && 
 		m_isEngineTurnedOn;
 }
@@ -134,7 +135,8 @@ bool Car::CanSetSecondGear() const
 
 	return m_gear != Gear::Reverse && 
 		m_speed >= speedRange.min && 
-		m_speed <= speedRange.max &&
+		m_speed <= speedRange.max && 
+		m_direction != Direction::Backward &&
 		m_isEngineTurnedOn;
 }
 
@@ -154,7 +156,8 @@ bool Car::CanSetThirdGear() const
 	const auto& speedRange{ gearSpeedRanges.at(Gear::Third) };
 
 	return m_speed >= speedRange.min && 
-		m_speed <= speedRange.max && 
+		m_speed <= speedRange.max &&
+		m_direction != Direction::Backward &&
 		m_isEngineTurnedOn;
 }
 
@@ -175,6 +178,7 @@ bool Car::CanSetFourthGear() const
 
 	return m_speed >= speedRange.min && 
 		m_speed <= speedRange.max && 
+		m_direction != Direction::Backward &&
 		m_isEngineTurnedOn;
 }
 
@@ -195,10 +199,61 @@ bool Car::CanSetFifthGear() const
 
 	return m_speed >= speedRange.min && 
 		m_speed <= speedRange.max && 
+		m_direction != Direction::Backward &&
 		m_isEngineTurnedOn;
 }
 
 bool Car::SetSpeed(int speed)
 {
+	if (speed < 0)
+	{
+		throw std::invalid_argument("Negative speed");
+	}
+
+	if (CanSetSpeed(speed))
+	{
+		m_speed = speed;
+		ChangeDirection();
+		return true;
+	}
+
 	return false;
+}
+
+bool Car::CanSetSpeed(int speed) const
+{
+	if (m_gear == Gear::Neutral)
+	{
+		return speed < m_speed;
+	}
+
+	const auto& speedRange{ gearSpeedRanges.at(m_gear) };
+
+	if (speed >= speedRange.min && speed <= speedRange.max)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void Car::ChangeDirection()
+{
+	if (m_speed == 0)
+	{
+		m_direction = Direction::None;
+		return;
+	}
+
+	if (m_speed != 0 && m_gear == Gear::Reverse)
+	{
+		m_direction = Direction::Backward;
+		return;
+	}
+
+	if (m_speed != 0 && m_gear > Gear::Neutral)
+	{
+		m_direction = Direction::Forward;
+		return;
+	}
 }
