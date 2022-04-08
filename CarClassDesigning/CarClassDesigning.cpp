@@ -1,4 +1,5 @@
-﻿#include "Car.h"
+﻿#include "CarController.h"
+#include "Car.h"
 #include <algorithm>
 #include <iostream>
 
@@ -13,7 +14,6 @@ void HandleCommand(Car& car, const std::string& command);
 void PrintCarInfo(const Car& car);
 void SetCarGear(Car& car, int gear);
 void SetCarSpeed(Car& car, int speed);
-void ToLowerString(std::string& str);
 void HandleEngineOffCommand(Car& car);
 void HandleSetGearCommand(Car& car);
 void HandleSetSpeedCommand(Car& car);
@@ -31,21 +31,15 @@ int main() //TODO: Покрыть тестами код взаимодейств
 			  << std::endl;
 
 	Car car;
-	std::string command{};
+	CarController carController(car, std::cin, std::cout);
 
-	while (true)
+	while (!std::cin.eof() && !std::cin.fail())
 	{
-		std::cout << "Enter a command: ";
-		std::cin >> command;
-		ToLowerString(command);
-
-		if (command == EXIT_COMMAND)
+		std::cout << "> ";
+		if (!carController.HandleCommand())
 		{
-			break;
+			std::cout << "Unknown command!" << std::endl;
 		}
-
-		HandleCommand(car, command);
-		while (std::cin.get() != '\n') { } // Отбрасываем лишние символы
 	}
 }
 
@@ -178,9 +172,4 @@ bool IsNumber(const std::string& str)
 		!str.empty() && std::find_if(str.cbegin() + 1, str.cend(), [](unsigned char c) {
 		return !std::isdigit(c);
 	}) == str.cend();
-}
-
-void ToLowerString(std::string& str)
-{
-	std::transform(str.cbegin(), str.cend(), str.begin(), [](char c) { return tolower(c); });
 }

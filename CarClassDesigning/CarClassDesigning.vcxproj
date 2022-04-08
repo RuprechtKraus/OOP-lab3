@@ -142,9 +142,11 @@
   <ItemGroup>
     <ClCompile Include="Car.cpp" />
     <ClCompile Include="CarClassDesigning.cpp" />
+    <ClCompile Include="CarController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Car.h" />
+    <ClInclude Include="CarController.h" />
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Gear.h" />
   </ItemGroup>
