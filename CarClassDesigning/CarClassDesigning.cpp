@@ -17,8 +17,9 @@ void ToLowerString(std::string& str);
 void HandleEngineOffCommand(Car& car);
 void HandleSetGearCommand(Car& car);
 void HandleSetSpeedCommand(Car& car);
+bool IsNumber(const std::string& str);
 
-int main()
+int main() //TODO: Покрыть тестами код взаимодействия с пользователем CarController
 {
 	std::cout << "List of available commands:"
 			  << "\nInfo"
@@ -44,6 +45,7 @@ int main()
 		}
 
 		HandleCommand(car, command);
+		while (std::cin.get() != '\n') { } // Отбрасываем лишние символы
 	}
 }
 
@@ -79,7 +81,7 @@ void HandleCommand(Car& car, const std::string& command)
 		return;
 	}
 
-	std::cout << "Unknown command\n"
+	std::cout << "Unknown command"
 			  << std::endl;
 }
 
@@ -94,16 +96,30 @@ void HandleEngineOffCommand(Car& car)
 
 void HandleSetGearCommand(Car& car)
 {
-	int gear{};
+	std::string gear{};
 	std::cin >> gear;
-	SetCarGear(car, gear);
+	if (IsNumber(gear))
+	{
+		SetCarGear(car, std::atoi(gear.c_str()));
+	}
+	else
+	{
+		std::cout << "Invalid gear value" << std::endl;
+	}
 }
 
 void HandleSetSpeedCommand(Car& car)
 {
-	int speed{};
+	std::string speed{};
 	std::cin >> speed;
-	SetCarSpeed(car, speed);
+	if (IsNumber(speed))
+	{
+		SetCarSpeed(car, std::atoi(speed.c_str()));
+	}
+	else
+	{
+		std::cout << "Invalid speed value" << std::endl;
+	}
 }
 
 void PrintCarInfo(const Car& car)
@@ -128,13 +144,13 @@ void SetCarGear(Car& car, int gear)
 	{
 		if (!car.SetGear(static_cast<Gear>(gear)))
 		{
-			std::cout << "Unable to set gear\n"
+			std::cout << "Unable to set gear"
 					  << std::endl;
 		}
 	}
 	else
 	{
-		std::cout << "Wrong gear\n"
+		std::cout << "Wrong gear"
 				  << std::endl;
 	}
 }
@@ -145,15 +161,23 @@ void SetCarSpeed(Car& car, int speed)
 	{
 		if (!car.SetSpeed(speed))
 		{
-			std::cout << "Unable to set speed\n"
+			std::cout << "Unable to set speed"
 					  << std::endl;
 		}
 	}
 	else
 	{
-		std::cout << "Negative speed\n"
+		std::cout << "Negative speed"
 				  << std::endl;
 	}
+}
+
+bool IsNumber(const std::string& str)
+{
+	return (str[0] == '-' || std::isdigit(str[0])) && 
+		!str.empty() && std::find_if(str.cbegin() + 1, str.cend(), [](unsigned char c) {
+		return !std::isdigit(c);
+	}) == str.cend();
 }
 
 void ToLowerString(std::string& str)

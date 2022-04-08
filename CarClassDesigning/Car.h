@@ -22,21 +22,9 @@ private:
 		int max;
 	};
 
-	bool SetReverseGear();
-	bool CanSetReverseGear() const;
-	bool SetNeutralGear();
-	bool CanSetFirstGear() const;
-	bool SetFirstGear();
-	bool CanSetSecondGear() const;
-	bool SetSecondGear();
-	bool CanSetThirdGear() const;
-	bool SetThirdGear();
-	bool CanSetFourthGear() const;
-	bool SetFourthGear();
-	bool CanSetFifthGear() const;
-	bool SetFifthGear();
 	bool CanTurnOffEngine() const;
 	bool CanSetSpeed(int speed) const;
+	bool CanSetGear(Gear gear) const;
 	void ChangeDirection();
 
 	const std::map<Gear, SpeedRange> gearSpeedRanges = {
