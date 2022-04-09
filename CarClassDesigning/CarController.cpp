@@ -11,7 +11,7 @@ CarController::CarController(Car& car, std::istream& input, std::ostream& output
 {
 }
 
-bool CarController::HandleCommand()
+HandlingResult CarController::HandleCommand()
 {
 	std::string command{};
 	m_input >> command;
@@ -20,24 +20,33 @@ bool CarController::HandleCommand()
 	auto it = m_actionMap.find(command);
 	if (it != m_actionMap.cend())
 	{
-		it->second(m_input);
-		return true;
+		return it->second(m_input);
 	}
 
-	return false;
+	return HandlingResult::UnknownCommand;
 }
 
-void CarController::TurnOn(std::istream&)
+HandlingResult CarController::TurnOn(std::istream&)
 {
-	m_car.TurnOnEngine();
+	if (!m_car.TurnOnEngine())
+	{
+		return HandlingResult::Fail;
+	}
+
+	return HandlingResult::Success;
 }
 
-void CarController::TurnOff(std::istream&)
+HandlingResult CarController::TurnOff(std::istream&)
 {
-	m_car.TurnOffEngine();
+	if (!m_car.TurnOffEngine())
+	{
+		return HandlingResult::Fail;
+	}
+
+	return HandlingResult::Success;
 }
 
-void CarController::SetGear(std::istream& args)
+HandlingResult CarController::SetGear(std::istream& args)
 {
 	int gear{};
 	args >> gear;
@@ -46,18 +55,22 @@ void CarController::SetGear(std::istream& args)
 	{
 		if (!m_car.SetGear(static_cast<Gear>(gear)))
 		{
-			std::cout << "Unable to set gear"
+			m_output << "Unable to set gear"
 					  << std::endl;
+			return HandlingResult::Fail;
 		}
 	}
 	else
 	{
-		std::cout << "Wrong gear"
+		m_output << "Wrong gear"
 				  << std::endl;
+		return HandlingResult::Fail;
 	}
+
+	return HandlingResult::Success;
 }
 
-void CarController::SetSpeed(std::istream& args)
+HandlingResult CarController::SetSpeed(std::istream& args)
 {
 	int speed{};
 	args >> speed;
@@ -66,17 +79,21 @@ void CarController::SetSpeed(std::istream& args)
 	{
 		if (!m_car.SetSpeed(speed))
 		{
-			std::cout << "Unable to set speed"
+			m_output << "Unable to set speed"
 					  << std::endl;
+			return HandlingResult::Fail;
 		}
 	}
 	catch (const std::invalid_argument& e)
 	{
-		std::cout << "Error: " << e.what() << std::endl;
+		m_output << "Error: " << e.what() << std::endl;
+		return HandlingResult::Fail;
 	}
+
+	return HandlingResult::Success;
 }
 
-void CarController::Info(std::istream&)
+HandlingResult CarController::Info(std::istream&)
 {
 	try
 	{
@@ -88,8 +105,11 @@ void CarController::Info(std::istream&)
 	}
 	catch (const std::invalid_argument& e)
 	{
-		std::cout << "Error: " << e.what() << std::endl;
+		m_output << "Error: " << e.what() << std::endl;
+		return HandlingResult::Fail;
 	}
+
+	return HandlingResult::Success;
 }
 
 void ToLowerString(std::string& str)
