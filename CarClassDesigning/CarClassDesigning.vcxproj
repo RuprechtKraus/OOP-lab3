@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClInclude Include="Car.h" />
     <ClInclude Include="CarController.h" />
+    <ClInclude Include="CarErrors.h" />
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Gear.h" />
   </ItemGroup>

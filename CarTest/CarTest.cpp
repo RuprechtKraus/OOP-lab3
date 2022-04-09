@@ -25,8 +25,9 @@ namespace CarTest
 			Car car;
 			car.TurnOnEngine();
 
-			bool gearSetSuccess{ car.SetGear(Gear::First) };
+			GearError gearError{ car.SetGear(Gear::First) };
 
+			Assert::IsTrue(gearError == GearError::NoError);
 			Assert::IsTrue(car.IsTurnedOn(), L"Engine isn't on");
 			Assert::IsTrue(car.GetDirection() == Direction::None, L"Direction isn't None");
 			Assert::IsTrue(car.GetGear() == Gear::First, L"Car isn't at first gear");
@@ -38,9 +39,9 @@ namespace CarTest
 			Car car;
 			car.TurnOnEngine();
 
-			bool gearSetSuccess = car.SetGear(Gear::Reverse);
+			GearError gearError{ car.SetGear(Gear::Reverse) };
 
-			Assert::IsTrue(gearSetSuccess, L"Gear wasn't successfully set");
+			Assert::IsTrue(gearError == GearError::NoError, L"Gear wasn't successfully set");
 			Assert::IsTrue(car.GetGear() == Gear::Reverse, L"Car isn't at Reverse gear");
 		}
 
@@ -49,47 +50,47 @@ namespace CarTest
 			Car car;
 			car.TurnOnEngine();
 
-			bool gearSetSuccess{ car.SetGear(Gear::First) };
-			bool speedSetSuccess{ car.SetSpeed(30) };
+			GearError gearError{ car.SetGear(Gear::First) };
+			SpeedError speedError{ car.SetSpeed(30) };
 
 			Assert::IsTrue(car.GetDirection() == Direction::Forward, L"Direction isn't forward");
-			Assert::IsTrue(gearSetSuccess, L"Gear wasn't successfully set");
-			Assert::IsTrue(speedSetSuccess, L"Speed wasn't successfully set");
+			Assert::IsTrue(gearError == GearError::NoError, L"Gear wasn't successfully set");
+			Assert::IsTrue(speedError == SpeedError::NoError, L"Speed wasn't successfully set");
 			Assert::AreEqual(30, car.GetSpeed(), L"Speed isn't 30");
 
-			gearSetSuccess = car.SetGear(Gear::Second);
-			speedSetSuccess = car.SetSpeed(40);
+			gearError = car.SetGear(Gear::Second);
+			speedError = car.SetSpeed(40);
 
 			Assert::IsTrue(car.GetDirection() == Direction::Forward, L"Direction isn't forward");
-			Assert::IsTrue(gearSetSuccess, L"Gear wasn't successfully set");
-			Assert::IsTrue(speedSetSuccess, L"Speed wasn't successfully set");
+			Assert::IsTrue(gearError == GearError::NoError, L"Gear wasn't successfully set");
+			Assert::IsTrue(speedError == SpeedError::NoError, L"Speed wasn't successfully set");
 			Assert::IsTrue(car.GetGear() == Gear::Second, L"Car isn't at second gear");
 			Assert::AreEqual(40, car.GetSpeed(), L"Speed isn't 30");
 
-			gearSetSuccess = car.SetGear(Gear::Third);
-			speedSetSuccess = car.SetSpeed(50);
+			gearError = car.SetGear(Gear::Third);
+			speedError = car.SetSpeed(50);
 
 			Assert::IsTrue(car.GetDirection() == Direction::Forward, L"Direction isn't forward");
-			Assert::IsTrue(gearSetSuccess, L"Gear wasn't successfully set");
-			Assert::IsTrue(speedSetSuccess, L"Speed wasn't successfully set");
+			Assert::IsTrue(gearError == GearError::NoError, L"Gear wasn't successfully set");
+			Assert::IsTrue(speedError == SpeedError::NoError, L"Speed wasn't successfully set");
 			Assert::IsTrue(car.GetGear() == Gear::Third, L"Car isn't at third gear");
 			Assert::AreEqual(50, car.GetSpeed(), L"Speed isn't 50");
 
-			gearSetSuccess = car.SetGear(Gear::Fourth);
-			speedSetSuccess = car.SetSpeed(70);
+			gearError = car.SetGear(Gear::Fourth);
+			speedError = car.SetSpeed(70);
 
 			Assert::IsTrue(car.GetDirection() == Direction::Forward, L"Direction isn't forward");
-			Assert::IsTrue(gearSetSuccess, L"Gear wasn't successfully set");
-			Assert::IsTrue(speedSetSuccess, L"Speed wasn't successfully set");
+			Assert::IsTrue(gearError == GearError::NoError, L"Gear wasn't successfully set");
+			Assert::IsTrue(speedError == SpeedError::NoError, L"Speed wasn't successfully set");
 			Assert::IsTrue(car.GetGear() == Gear::Fourth, L"Car isn't at fourth gear");
 			Assert::AreEqual(70, car.GetSpeed(), L"Speed isn't 70");
 
-			gearSetSuccess = car.SetGear(Gear::Fifth);
-			speedSetSuccess = car.SetSpeed(150);
+			gearError = car.SetGear(Gear::Fifth);
+			speedError = car.SetSpeed(150);
 
 			Assert::IsTrue(car.GetDirection() == Direction::Forward, L"Direction isn't forward");
-			Assert::IsTrue(gearSetSuccess, L"Gear wasn't successfully set");
-			Assert::IsTrue(speedSetSuccess, L"Speed wasn't successfully set");
+			Assert::IsTrue(gearError == GearError::NoError, L"Gear wasn't successfully set");
+			Assert::IsTrue(speedError == SpeedError::NoError, L"Speed wasn't successfully set");
 			Assert::IsTrue(car.GetGear() == Gear::Fifth, L"Car isn't at fifth gear");
 			Assert::AreEqual(150, car.GetSpeed(), L"Speed isn't 150");
 		}
@@ -99,16 +100,16 @@ namespace CarTest
 			Car car;
 			car.TurnOnEngine();
 
-			bool gearSetSuccess{ car.SetGear(Gear::First) };
-			bool speedSetSuccess{ car.SetSpeed(30) };
+			GearError gearError{ car.SetGear(Gear::First) };
+			SpeedError speedError{ car.SetSpeed(30) };
 
 			car.SetGear(Gear::Second);
 			car.SetSpeed(50);
-			gearSetSuccess = car.SetGear(Gear::Fifth);
-			speedSetSuccess = car.SetSpeed(150);
+			gearError = car.SetGear(Gear::Fifth);
+			speedError = car.SetSpeed(150);
 
-			Assert::IsTrue(gearSetSuccess, L"Gear wasn't successfully set");
-			Assert::IsTrue(speedSetSuccess, L"Speed wasn't successfully set");
+			Assert::IsTrue(gearError == GearError::NoError, L"Gear wasn't successfully set");
+			Assert::IsTrue(speedError == SpeedError::NoError, L"Speed wasn't successfully set");
 			Assert::IsTrue(car.GetDirection() == Direction::Forward, L"Direction isn't forward");
 			Assert::IsTrue(car.GetGear() == Gear::Fifth, L"Car isn't at fifth gear");
 			Assert::IsTrue(car.GetSpeed() == 150, L"Speed isn't 150");
@@ -119,9 +120,9 @@ namespace CarTest
 			Car car;
 			car.TurnOnEngine();
 			
-			bool setSpeedSuccess{ car.SetSpeed(20) };
+			SpeedError speedError{ car.SetSpeed(20) };
 
-			Assert::IsFalse(setSpeedSuccess, L"Speed can't be set at neutral gear");
+			Assert::IsTrue(speedError == SpeedError::AccelerateInNeutralGear, L"Speed can't be set at neutral gear");
 		}
 
 		TEST_METHOD(TestMoveCarBackwards)
@@ -129,11 +130,11 @@ namespace CarTest
 			Car car;
 			car.TurnOnEngine();
 
-			bool gearSetSuccess{ car.SetGear(Gear::Reverse) };
-			bool speedSetSuccess{ car.SetSpeed(20) };
+			GearError gearError{ car.SetGear(Gear::Reverse) };
+			SpeedError speedError{ car.SetSpeed(20) };
 
-			Assert::IsTrue(gearSetSuccess, L"Gear wasn't successfully set");
-			Assert::IsTrue(speedSetSuccess, L"Speed wasn't successfully set");
+			Assert::IsTrue(gearError == GearError::NoError, L"Gear wasn't successfully set");
+			Assert::IsTrue(speedError == SpeedError::NoError, L"Speed wasn't successfully set");
 			Assert::IsTrue(car.GetDirection() == Direction::Backward, L"Direction isn't backward");
 			Assert::AreEqual(20, car.GetSpeed(), L"Speed isn't 20");
 		}
@@ -142,18 +143,18 @@ namespace CarTest
 		{
 			Car car;
 			
-			bool gearSetSuccess{ car.SetGear(Gear::First) };
+			GearError gearError{ car.SetGear(Gear::First) };
 
-			Assert::IsFalse(gearSetSuccess, L"Car is switched into first gear with engine off");
+			Assert::IsTrue(gearError == GearError::EngineIsOff, L"Car is switched into first gear with engine off");
 		}
 
 		TEST_METHOD(TestTrySetSpeedWithEngineOff)
 		{
 			Car car;
 
-			bool speedSetSuccess{ car.SetSpeed(20) };
+			SpeedError speedError{ car.SetSpeed(20) };
 
-			Assert::IsFalse(speedSetSuccess, L"Car speed is set to 20  with engine off");
+			Assert::IsTrue(speedError == SpeedError::EngineIsOff, L"Car speed is set to 20  with engine off");
 		}
 
 		TEST_METHOD(TestTrySetFirstGearAtMovingBackwards)
@@ -164,9 +165,9 @@ namespace CarTest
 			car.SetGear(Gear::Reverse);
 			car.SetSpeed(20);
 
-			bool gearSetSuccess{ car.SetGear(Gear::First) };
+			GearError gearError{ car.SetGear(Gear::First) };
 
-			Assert::IsFalse(gearSetSuccess, L"Gear successfully set");
+			Assert::IsTrue(gearError == GearError::WrongDirection, L"Gear successfully set");
 		}
 
 		TEST_METHOD(TestTrySetFirstGearFromNeutralGearWhileMovingBackwards)
@@ -178,9 +179,9 @@ namespace CarTest
 			car.SetSpeed(20);
 			car.SetGear(Gear::Neutral);
 			
-			bool gearSetSuccess{ car.SetGear(Gear::First) };
+			GearError gearError{ car.SetGear(Gear::First) };
 
-			Assert::IsFalse(gearSetSuccess, L"Gear successfully set");
+			Assert::IsTrue(gearError == GearError::WrongDirection, L"Gear successfully set");
 		}
 
 		TEST_METHOD(TestTrySetNegativeSpeed)
@@ -198,10 +199,11 @@ namespace CarTest
 		{
 			Car car;
 			car.TurnOnEngine();
+			car.SetGear(Gear::First);
 			
-			bool speedSetSuccess{ car.SetSpeed(std::numeric_limits<int>::max()) };
+			SpeedError speedError{ car.SetSpeed(std::numeric_limits<int>::max()) };
 
-			Assert::IsFalse(speedSetSuccess, L"Set speed exceeding upper bound");
+			Assert::IsTrue(speedError == SpeedError::WrongSpeed, L"Set speed exceeding upper bound");
 		}
 
 		TEST_METHOD(TestTurnOffEngine)
@@ -209,9 +211,9 @@ namespace CarTest
 			Car car;
 			car.TurnOnEngine();
 
-			bool turnOffEngineSuccess{ car.TurnOffEngine() };
+			EngineError engineError{ car.TurnOffEngine() };
 
-			Assert::IsTrue(turnOffEngineSuccess, L"Engine isn't off");
+			Assert::IsTrue(engineError == EngineError::NoError, L"Engine isn't off");
 		}
 
 		TEST_METHOD(TestTryTurnOffEngineWhileMoving)
@@ -222,9 +224,9 @@ namespace CarTest
 			car.SetGear(Gear::First);
 			car.SetSpeed(20);
 			
-			bool turnOffEngineSuccess{ car.TurnOffEngine() };
+			EngineError engineError{ car.TurnOffEngine() };
 
-			Assert::IsFalse(turnOffEngineSuccess, L"Engine was turned off while moving");
+			Assert::IsTrue(engineError == EngineError::CarIsMoving, L"Engine was turned off while moving");
 		}
 	};
 }

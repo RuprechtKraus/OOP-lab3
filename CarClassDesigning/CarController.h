@@ -2,7 +2,7 @@
 #include "Car.h"
 #include <functional>
 
-enum class HandlingResult
+enum class HandlingStatus
 {
 	Fail,
 	Success,
@@ -16,17 +16,18 @@ public:
 	CarController(Car& car, std::istream& input, std::ostream& output);
 	CarController& operator=(const CarController&) = delete;
 
-	HandlingResult HandleCommand();
+	HandlingStatus HandleCommand();
 
 private:
-	using Handler = std::function<HandlingResult(std::istream& args)>;
+	using Handler = std::function<HandlingStatus(std::istream& args)>;
 	using ActionMap = std::map<std::string, Handler>;
 
-	HandlingResult TurnOn(std::istream&);
-	HandlingResult TurnOff(std::istream&);
-	HandlingResult SetGear(std::istream&);
-	HandlingResult SetSpeed(std::istream&);
-	HandlingResult Info(std::istream&);
+	HandlingStatus TurnOn(std::istream&);
+	HandlingStatus TurnOff(std::istream&);
+	HandlingStatus SetGear(std::istream&);
+	HandlingStatus SetSpeed(std::istream&);
+	HandlingStatus Info(std::istream&);
+	//TODO: Добавить методы Handle<ErrorType>
 
 	Car& m_car;
 	std::istream& m_input;
@@ -37,6 +38,6 @@ private:
 		{ "setgear", std::bind(&CarController::SetGear, this, std::placeholders::_1) },
 		{ "setspeed", std::bind(&CarController::SetSpeed, this, std::placeholders::_1) },
 		{ "info", std::bind(&CarController::Info, this, std::placeholders::_1) },
-		{ "exit", [](std::istream&) { return HandlingResult::Exit; } }
+		{ "exit", [](std::istream&) { return HandlingStatus::Exit; } }
 	};
 };

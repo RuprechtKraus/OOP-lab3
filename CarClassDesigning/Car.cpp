@@ -21,111 +21,194 @@ Direction Car::GetDirection() const
 	return m_direction;
 }
 
-bool Car::TurnOnEngine()
+EngineError Car::TurnOnEngine()
 {
 	m_isEngineTurnedOn = true;
-	return true;
+	return EngineError::NoError;
 }
 
-bool Car::TurnOffEngine()
+EngineError Car::TurnOffEngine()
 {
-	if (!m_isEngineTurnedOn)
-	{
-		return true;
-	}
+	EngineError error{ CanTurnOffEngine() };
 
-	if (CanTurnOffEngine())
+	if (error == EngineError::NoError)
 	{
 		m_isEngineTurnedOn = false;
-		return true;
 	}
 
-	return false;
+	return error;
 }
 
-bool Car::CanTurnOffEngine() const
+EngineError Car::CanTurnOffEngine() const
 {
-	return m_gear == Gear::Neutral && m_speed == 0;
+	if (m_speed != 0)
+	{
+		return EngineError::CarIsMoving;
+	}
+
+	if (m_gear != Gear::Neutral)
+	{
+		return EngineError::GearIsNotNeutral;
+	}
+
+	return EngineError::NoError;
 }
 
-bool Car::SetGear(Gear gear)
+GearError Car::SetGear(Gear gear)
 {
-	if (CanSetGear(gear))
+	GearError error{ CanSetGear(gear) };
+
+	if (error == GearError::NoError)
 	{
 		m_gear = gear;
-		return true;
 	}
 
-	return false;
+	return error;
 }
 
-bool Car::CanSetGear(Gear gear) const
+GearError Car::CanSetGear(Gear gear) const
 {
 	const auto& speedRange{ gearSpeedRanges.at(gear) };
 
 	switch (gear)
 	{
 	case Gear::Reverse:
-		return m_speed == 0 && m_isEngineTurnedOn;
+		return CanSetReverseGear();
 	case Gear::Neutral:
-		return true;
+		return GearError::NoError;
 	case Gear::First:
-		return ((m_gear != Gear::Reverse && 
-			m_speed >= speedRange.min && 
-			m_speed <= speedRange.max && 
-			m_direction != Direction::Backward) || 
-			(m_gear == Gear::Reverse && m_speed == 0)) && 
-			m_isEngineTurnedOn;
+		return CanSetFirstGear();
 	case Gear::Second:
-		return m_gear != Gear::Reverse && 
-			m_speed >= speedRange.min && 
-			m_speed <= speedRange.max && 
-			m_direction != Direction::Backward && 
-			m_isEngineTurnedOn;
+		return CanSetSecondGear();
 	case Gear::Third:
 	case Gear::Fourth:
 	case Gear::Fifth:
-		return m_speed >= speedRange.min && 
-			m_speed <= speedRange.max && 
-			m_direction != Direction::Backward && 
-			m_isEngineTurnedOn;
+		return CanSetGearAboveSecond(gear);
 	default:
-		return false;
+		throw std::invalid_argument("Unexpected gear");
 	}
 }
 
-bool Car::SetSpeed(int speed)
+GearError Car::CanSetReverseGear() const
+{
+	if (!m_isEngineTurnedOn)
+	{
+		return GearError::EngineIsOff;
+	}
+
+	if (m_direction != Direction::Backward && m_speed != 0)
+	{
+		return GearError::WrongDirection;
+	}
+
+	return GearError::NoError;
+}
+
+GearError Car::CanSetFirstGear() const
+{
+	const auto& speedRange{ gearSpeedRanges.at(Gear::First) };
+
+	if (!m_isEngineTurnedOn)
+	{
+		return GearError::EngineIsOff;
+	}
+
+	if (m_direction == Direction::Backward && m_speed != 0)
+	{
+		return GearError::WrongDirection;
+	}
+
+	if (m_gear != Gear::Reverse && (m_speed < speedRange.min || m_speed > speedRange.max))
+	{
+		return GearError::WrongSpeed;
+	}
+
+	return GearError::NoError;
+}
+
+GearError Car::CanSetSecondGear() const
+{
+	const auto& speedRange{ gearSpeedRanges.at(Gear::Second) };
+
+	if (!m_isEngineTurnedOn)
+	{
+		return GearError::EngineIsOff;
+	}
+
+	if (m_direction == Direction::Backward && m_speed != 0)
+	{
+		return GearError::WrongDirection;
+	}
+
+	if (m_speed < speedRange.min || m_speed > speedRange.max)
+	{
+		return GearError::WrongSpeed;
+	}
+
+	return GearError::NoError;
+}
+
+GearError Car::CanSetGearAboveSecond(Gear gear) const
+{
+	const auto& speedRange{ gearSpeedRanges.at(gear) };
+
+	if (!m_isEngineTurnedOn)
+	{
+		return GearError::EngineIsOff;
+	}
+
+	if (m_direction == Direction::Backward && m_speed != 0)
+	{
+		return GearError::WrongDirection;
+	}
+
+	if (m_speed < speedRange.min || m_speed > speedRange.max)
+	{
+		return GearError::WrongSpeed;
+	}
+
+	return GearError::NoError;
+}
+
+SpeedError Car::SetSpeed(int speed)
 {
 	if (speed < 0)
 	{
 		throw std::invalid_argument("Negative speed");
 	}
 
-	if (CanSetSpeed(speed))
+	SpeedError error{ CanSetSpeed(speed) };
+
+	if (error == SpeedError::NoError)
 	{
 		m_speed = speed;
 		ChangeDirection();
-		return true;
+		return error;
 	}
 
-	return false;
+	return error;
 }
 
-bool Car::CanSetSpeed(int speed) const
+SpeedError Car::CanSetSpeed(int speed) const
 {
-	if (m_gear == Gear::Neutral)
+	if (!m_isEngineTurnedOn)
 	{
-		return speed < m_speed;
+		return SpeedError::EngineIsOff;
+	}
+
+	if (m_gear == Gear::Neutral && speed > m_speed)
+	{
+		return SpeedError::AccelerateInNeutralGear;
 	}
 
 	const auto& speedRange{ gearSpeedRanges.at(m_gear) };
 
-	if (speed >= speedRange.min && speed <= speedRange.max)
+	if (speed < speedRange.min || speed > speedRange.max)
 	{
-		return true;
+		return SpeedError::WrongSpeed;
 	}
 
-	return false;
+	return SpeedError::NoError;
 }
 
 void Car::ChangeDirection()

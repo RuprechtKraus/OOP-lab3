@@ -16,14 +16,14 @@ int main() // TODO: Покрыть тестами код взаимодейст�
 
 	Car car;
 	CarController carController(car, std::cin, std::cout);
-	HandlingResult handlingResult{ HandlingResult::Success };
+	HandlingStatus handlingResult{ HandlingStatus::Success };
 
-	while (handlingResult != HandlingResult::Exit)
+	while (handlingResult != HandlingStatus::Exit)
 	{
 		std::cout << "> ";
 		handlingResult = carController.HandleCommand();
 
-		if (handlingResult == HandlingResult::UnknownCommand)
+		if (handlingResult == HandlingStatus::UnknownCommand)
 		{
 			std::cout << "Unknown command" << std::endl;
 		}

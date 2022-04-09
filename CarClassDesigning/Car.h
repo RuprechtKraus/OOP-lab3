@@ -1,6 +1,7 @@
 #pragma once
-#include "Gear.h"
+#include "CarErrors.h"
 #include "Direction.h"
+#include "Gear.h"
 #include <map>
 
 class Car
@@ -10,10 +11,10 @@ public:
 	int GetSpeed() const;
 	Gear GetGear() const;
 	Direction GetDirection() const;
-	bool TurnOnEngine();
-	bool TurnOffEngine();
-	bool SetGear(Gear gear);
-	bool SetSpeed(int speed);
+	EngineError TurnOnEngine();
+	EngineError TurnOffEngine();
+	GearError SetGear(Gear gear);
+	SpeedError SetSpeed(int speed);
 
 private:
 	struct SpeedRange
@@ -22,9 +23,15 @@ private:
 		int max;
 	};
 
-	bool CanTurnOffEngine() const;
-	bool CanSetSpeed(int speed) const;
-	bool CanSetGear(Gear gear) const;
+	EngineError CanTurnOffEngine() const;
+	GearError CanSetGear(Gear gear) const;
+	//-- BEGIN_TODO: Объеденить все в одну функцию --
+	GearError CanSetReverseGear() const;
+	GearError CanSetFirstGear() const;
+	GearError CanSetSecondGear() const;
+	GearError CanSetGearAboveSecond(Gear gear) const;
+	//-- END_TODO --
+	SpeedError CanSetSpeed(int speed) const;
 	void ChangeDirection();
 
 	const std::map<Gear, SpeedRange> gearSpeedRanges = {

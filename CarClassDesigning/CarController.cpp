@@ -11,7 +11,7 @@ CarController::CarController(Car& car, std::istream& input, std::ostream& output
 {
 }
 
-HandlingResult CarController::HandleCommand()
+HandlingStatus CarController::HandleCommand()
 {
 	std::string command{};
 	m_input >> command;
@@ -23,77 +23,106 @@ HandlingResult CarController::HandleCommand()
 		return it->second(m_input);
 	}
 
-	return HandlingResult::UnknownCommand;
+	return HandlingStatus::UnknownCommand;
 }
 
-HandlingResult CarController::TurnOn(std::istream&)
+HandlingStatus CarController::TurnOn(std::istream&)
 {
-	if (!m_car.TurnOnEngine())
+	if (m_car.TurnOnEngine() == EngineError::NoError)
 	{
-		return HandlingResult::Fail;
+		return HandlingStatus::Success;
 	}
 
-	return HandlingResult::Success;
+	return HandlingStatus::Fail;
 }
 
-HandlingResult CarController::TurnOff(std::istream&)
+HandlingStatus CarController::TurnOff(std::istream&)
 {
-	if (!m_car.TurnOffEngine())
-	{
-		return HandlingResult::Fail;
-	}
+	EngineError error{ m_car.TurnOffEngine() };
 
-	return HandlingResult::Success;
+	switch (error)
+	{
+	case EngineError::CarIsMoving:
+		m_output << "Cannot turn the engine off while moving" << std::endl;
+		return HandlingStatus::Fail;
+	case EngineError::GearIsNotNeutral:
+		m_output << "Cannot turn the engine off not in neutral gear" << std::endl;
+		return HandlingStatus::Fail;
+	case EngineError::NoError:
+		return HandlingStatus::Success;
+	default:
+		return HandlingStatus::Fail;
+	}
 }
 
-HandlingResult CarController::SetGear(std::istream& args)
+HandlingStatus CarController::SetGear(std::istream& args)
 {
 	int gear{};
 	args >> gear;
 
 	if (gear >= -1 && gear <= 5)
 	{
-		if (!m_car.SetGear(static_cast<Gear>(gear)))
+		GearError error{ m_car.SetGear(static_cast<Gear>(gear)) };
+
+		switch (error)
 		{
-			m_output << "Unable to set gear"
-					  << std::endl;
-			return HandlingResult::Fail;
+		case GearError::EngineIsOff:
+			m_output << "Unable to set gear: engine is off" << std::endl;
+			return HandlingStatus::Fail;
+		case GearError::WrongSpeed:
+			m_output << "Unable to set gear: wrong speed" << std::endl;
+			return HandlingStatus::Fail;
+		case GearError::WrongDirection:
+			m_output << "Unable to set gear: car is moving in the wrong direction" << std::endl;
+			return HandlingStatus::Fail;
+		case GearError::NoError:
+			return HandlingStatus::Success;
+		default:
+			return HandlingStatus::Fail;
 		}
 	}
 	else
 	{
 		m_output << "Wrong gear"
-				  << std::endl;
-		return HandlingResult::Fail;
+				 << std::endl;
+		return HandlingStatus::Fail;
 	}
-
-	return HandlingResult::Success;
 }
 
-HandlingResult CarController::SetSpeed(std::istream& args)
+HandlingStatus CarController::SetSpeed(std::istream& args)
 {
 	int speed{};
 	args >> speed;
 
 	try
 	{
-		if (!m_car.SetSpeed(speed))
+		SpeedError error{ m_car.SetSpeed(speed) };
+
+		switch (error)
 		{
-			m_output << "Unable to set speed"
-					  << std::endl;
-			return HandlingResult::Fail;
+		case SpeedError::EngineIsOff:
+			m_output << "Unable to set speed: engine is off" << std::endl;
+			return HandlingStatus::Fail;
+		case SpeedError::AccelerateInNeutralGear:
+			m_output << "Unable to set speed: acceleration in neutral speed is not allowed" << std::endl;
+			return HandlingStatus::Fail;
+		case SpeedError::WrongSpeed:
+			m_output << "Unable to set speed: current gear doesn't allow this speed" << std::endl;
+			return HandlingStatus::Fail;
+		case SpeedError::NoError:
+			return HandlingStatus::Success;
+		default:
+			return HandlingStatus::Fail;
 		}
 	}
 	catch (const std::invalid_argument& e)
 	{
 		m_output << "Error: " << e.what() << std::endl;
-		return HandlingResult::Fail;
+		return HandlingStatus::Fail;
 	}
-
-	return HandlingResult::Success;
 }
 
-HandlingResult CarController::Info(std::istream&)
+HandlingStatus CarController::Info(std::istream&)
 {
 	try
 	{
@@ -106,10 +135,10 @@ HandlingResult CarController::Info(std::istream&)
 	catch (const std::invalid_argument& e)
 	{
 		m_output << "Error: " << e.what() << std::endl;
-		return HandlingResult::Fail;
+		return HandlingStatus::Fail;
 	}
 
-	return HandlingResult::Success;
+	return HandlingStatus::Success;
 }
 
 void ToLowerString(std::string& str)
