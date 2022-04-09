@@ -26,7 +26,7 @@ HandlingStatus CarController::HandleCommand()
 	return HandlingStatus::UnknownCommand;
 }
 
-HandlingStatus CarController::TurnOn(std::istream&)
+HandlingStatus CarController::TurnOn(std::istream&) const
 {
 	if (m_car.TurnOnEngine() == EngineError::NoError)
 	{
@@ -36,26 +36,35 @@ HandlingStatus CarController::TurnOn(std::istream&)
 	return HandlingStatus::Fail;
 }
 
-HandlingStatus CarController::TurnOff(std::istream&)
+HandlingStatus CarController::TurnOff(std::istream&) const
 {
 	EngineError error{ m_car.TurnOffEngine() };
 
+	if (error != EngineError::NoError)
+	{
+		HandleEngineErorr(error);
+		return HandlingStatus::Fail;
+	}
+	
+	return HandlingStatus::Success;
+}
+
+void CarController::HandleEngineErorr(EngineError error) const
+{
 	switch (error)
 	{
 	case EngineError::CarIsMoving:
 		m_output << "Cannot turn the engine off while moving" << std::endl;
-		return HandlingStatus::Fail;
+		break;
 	case EngineError::GearIsNotNeutral:
 		m_output << "Cannot turn the engine off not in neutral gear" << std::endl;
-		return HandlingStatus::Fail;
-	case EngineError::NoError:
-		return HandlingStatus::Success;
+		break;
 	default:
-		return HandlingStatus::Fail;
+		break;
 	}
 }
 
-HandlingStatus CarController::SetGear(std::istream& args)
+HandlingStatus CarController::SetGear(std::istream& args) const
 {
 	int gear{};
 	args >> gear;
@@ -64,20 +73,9 @@ HandlingStatus CarController::SetGear(std::istream& args)
 	{
 		GearError error{ m_car.SetGear(static_cast<Gear>(gear)) };
 
-		switch (error)
+		if (error != GearError::NoError)
 		{
-		case GearError::EngineIsOff:
-			m_output << "Unable to set gear: engine is off" << std::endl;
-			return HandlingStatus::Fail;
-		case GearError::WrongSpeed:
-			m_output << "Unable to set gear: wrong speed" << std::endl;
-			return HandlingStatus::Fail;
-		case GearError::WrongDirection:
-			m_output << "Unable to set gear: car is moving in the wrong direction" << std::endl;
-			return HandlingStatus::Fail;
-		case GearError::NoError:
-			return HandlingStatus::Success;
-		default:
+			HandleGearError(error);
 			return HandlingStatus::Fail;
 		}
 	}
@@ -87,9 +85,29 @@ HandlingStatus CarController::SetGear(std::istream& args)
 				 << std::endl;
 		return HandlingStatus::Fail;
 	}
+
+	return HandlingStatus::Success;
 }
 
-HandlingStatus CarController::SetSpeed(std::istream& args)
+void CarController::HandleGearError(GearError error) const
+{
+	switch (error)
+	{
+	case GearError::EngineIsOff:
+		m_output << "Unable to set gear: engine is off" << std::endl;
+		break;
+	case GearError::WrongSpeed:
+		m_output << "Unable to set gear: wrong speed" << std::endl;
+		break;
+	case GearError::WrongDirection:
+		m_output << "Unable to set gear: car is moving in the wrong direction" << std::endl;
+		break;
+	default:
+		return;
+	}
+}
+
+HandlingStatus CarController::SetSpeed(std::istream& args) const
 {
 	int speed{};
 	args >> speed;
@@ -98,20 +116,9 @@ HandlingStatus CarController::SetSpeed(std::istream& args)
 	{
 		SpeedError error{ m_car.SetSpeed(speed) };
 
-		switch (error)
+		if (error != SpeedError::NoError)
 		{
-		case SpeedError::EngineIsOff:
-			m_output << "Unable to set speed: engine is off" << std::endl;
-			return HandlingStatus::Fail;
-		case SpeedError::AccelerateInNeutralGear:
-			m_output << "Unable to set speed: acceleration in neutral speed is not allowed" << std::endl;
-			return HandlingStatus::Fail;
-		case SpeedError::WrongSpeed:
-			m_output << "Unable to set speed: current gear doesn't allow this speed" << std::endl;
-			return HandlingStatus::Fail;
-		case SpeedError::NoError:
-			return HandlingStatus::Success;
-		default:
+			HandleSpeedError(error);
 			return HandlingStatus::Fail;
 		}
 	}
@@ -120,9 +127,29 @@ HandlingStatus CarController::SetSpeed(std::istream& args)
 		m_output << "Error: " << e.what() << std::endl;
 		return HandlingStatus::Fail;
 	}
+
+	return HandlingStatus::Success;
 }
 
-HandlingStatus CarController::Info(std::istream&)
+void CarController::HandleSpeedError(SpeedError error) const
+{
+	switch (error)
+	{
+	case SpeedError::EngineIsOff:
+		m_output << "Unable to set speed: engine is off" << std::endl;
+		break;
+	case SpeedError::AccelerateInNeutralGear:
+		m_output << "Unable to set speed: acceleration in neutral speed is not allowed" << std::endl;
+		break;
+	case SpeedError::WrongSpeed:
+		m_output << "Unable to set speed: current gear doesn't allow this speed" << std::endl;
+		break;
+	default:
+		break;
+	}
+}
+
+HandlingStatus CarController::Info(std::istream&) const
 {
 	try
 	{

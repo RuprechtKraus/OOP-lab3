@@ -25,12 +25,8 @@ private:
 
 	EngineError CanTurnOffEngine() const;
 	GearError CanSetGear(Gear gear) const;
-	//-- BEGIN_TODO: Объеденить все в одну функцию --
 	GearError CanSetReverseGear() const;
-	GearError CanSetFirstGear() const;
-	GearError CanSetSecondGear() const;
-	GearError CanSetGearAboveSecond(Gear gear) const;
-	//-- END_TODO --
+	GearError CanSetForwardGear(Gear gear) const;
 	SpeedError CanSetSpeed(int speed) const;
 	void ChangeDirection();
 

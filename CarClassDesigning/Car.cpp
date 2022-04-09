@@ -68,8 +68,6 @@ GearError Car::SetGear(Gear gear)
 
 GearError Car::CanSetGear(Gear gear) const
 {
-	const auto& speedRange{ gearSpeedRanges.at(gear) };
-
 	switch (gear)
 	{
 	case Gear::Reverse:
@@ -77,13 +75,11 @@ GearError Car::CanSetGear(Gear gear) const
 	case Gear::Neutral:
 		return GearError::NoError;
 	case Gear::First:
-		return CanSetFirstGear();
 	case Gear::Second:
-		return CanSetSecondGear();
 	case Gear::Third:
 	case Gear::Fourth:
 	case Gear::Fifth:
-		return CanSetGearAboveSecond(gear);
+		return CanSetForwardGear(gear);
 	default:
 		throw std::invalid_argument("Unexpected gear");
 	}
@@ -104,51 +100,7 @@ GearError Car::CanSetReverseGear() const
 	return GearError::NoError;
 }
 
-GearError Car::CanSetFirstGear() const
-{
-	const auto& speedRange{ gearSpeedRanges.at(Gear::First) };
-
-	if (!m_isEngineTurnedOn)
-	{
-		return GearError::EngineIsOff;
-	}
-
-	if (m_direction == Direction::Backward && m_speed != 0)
-	{
-		return GearError::WrongDirection;
-	}
-
-	if (m_gear != Gear::Reverse && (m_speed < speedRange.min || m_speed > speedRange.max))
-	{
-		return GearError::WrongSpeed;
-	}
-
-	return GearError::NoError;
-}
-
-GearError Car::CanSetSecondGear() const
-{
-	const auto& speedRange{ gearSpeedRanges.at(Gear::Second) };
-
-	if (!m_isEngineTurnedOn)
-	{
-		return GearError::EngineIsOff;
-	}
-
-	if (m_direction == Direction::Backward && m_speed != 0)
-	{
-		return GearError::WrongDirection;
-	}
-
-	if (m_speed < speedRange.min || m_speed > speedRange.max)
-	{
-		return GearError::WrongSpeed;
-	}
-
-	return GearError::NoError;
-}
-
-GearError Car::CanSetGearAboveSecond(Gear gear) const
+GearError Car::CanSetForwardGear(Gear gear) const
 {
 	const auto& speedRange{ gearSpeedRanges.at(gear) };
 

@@ -26,6 +26,7 @@ int main() // TODO: Покрыть тестами код взаимодейст�
 		if (handlingResult == HandlingStatus::UnknownCommand)
 		{
 			std::cout << "Unknown command" << std::endl;
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		}
 	}
 }
