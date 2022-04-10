@@ -34,7 +34,7 @@ private:
 	Car& m_car;
 	std::istream& m_input;
 	std::ostream& m_output;
-	const ActionMap m_actionMap{
+	const ActionMap m_actionMap = {
 		{ "engineon", std::bind(&CarController::TurnOn, this, std::placeholders::_1) },
 		{ "engineoff", std::bind(&CarController::TurnOff, this, std::placeholders::_1) },
 		{ "setgear", std::bind(&CarController::SetGear, this, std::placeholders::_1) },

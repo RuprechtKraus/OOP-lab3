@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
-int main() // TODO: Покрыть тестами код взаимодействия с пользователем CarController
+int main()
 {
 	std::cout << "List of available commands:"
 			  << "\nInfo"
@@ -25,8 +25,9 @@ int main() // TODO: Покрыть тестами код взаимодейст�
 
 		if (handlingResult == HandlingStatus::UnknownCommand)
 		{
-			std::cout << "Unknown command" << std::endl;
-			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			std::cout << "Unknown command" << std::endl;	
 		}
+
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 }

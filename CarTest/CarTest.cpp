@@ -1,8 +1,50 @@
 #include "pch.h"
 #include "CppUnitTest.h"
+#include <sstream>
+#include <optional>
 #include "../CarClassDesigning/Car.h"
+#include "../CarClassDesigning/CarController.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+
+struct CarControllerDependencies
+{
+	Car car;
+	std::stringstream input;
+	std::stringstream output;
+};
+
+class CarTestController : public CarControllerDependencies
+{
+public:
+	CarTestController()
+		: m_carController(car, input, output){};
+
+	void VerifyCommandHandling(const std::string& command, 
+		HandlingStatus expectedHandlingStatus,
+		const std::optional<Gear>& expectedGear, 
+		const std::optional<int>& expectedSpeed,
+		const std::optional<Direction>& expectedDirection,
+		const std::string& expectedOutput)
+	{
+		input = std::stringstream();
+		output = std::stringstream();
+		input << command;
+
+		Assert::IsTrue(m_carController.HandleCommand() == expectedHandlingStatus, L"Command handling failed");
+		Assert::IsTrue(car.IsTurnedOn() == expectedGear.has_value(), L"Engine isn't on");
+		Assert::IsTrue(car.IsTurnedOn() == expectedSpeed.has_value(), L"Engine isn't on");
+		Assert::IsTrue(car.IsTurnedOn() == expectedDirection.has_value(), L"Engine isn't on");
+		Assert::IsTrue(car.GetGear() == expectedGear.value_or(Gear::Neutral), L"Actual gear doesn't match expected gear");
+		Assert::IsTrue(car.GetSpeed() == expectedSpeed.value_or(0), L"Actual speed doesn't match expected speed");
+		Assert::IsTrue(car.GetDirection() == expectedDirection.value_or(Direction::None), L"Actual direction doesn't match expected direction");
+		Assert::IsTrue(input.eof(), L"There is input left in stream");
+		Assert::AreEqual(output.str(), expectedOutput, L"Actual output doesn't match expected output");
+	}
+
+private:
+	CarController m_carController;
+};
 
 namespace CarTest
 {
@@ -227,6 +269,89 @@ namespace CarTest
 			EngineError engineError{ car.TurnOffEngine() };
 
 			Assert::IsTrue(engineError == EngineError::CarIsMoving, L"Engine was turned off while moving");
+		}
+	};
+
+	TEST_CLASS(CarControllerTest)
+	{
+	public:
+		TEST_METHOD(CanHandleEngineOnCommand)
+		{
+			CarTestController testController;
+			testController.VerifyCommandHandling("EngineOn", HandlingStatus::Success, Gear::Neutral, 0, Direction::None, "");
+		}
+
+		TEST_METHOD(CanHandleEngineOffCommand)
+		{
+			CarTestController testController;
+			testController.car.TurnOnEngine();
+			testController.VerifyCommandHandling("EngineOff", HandlingStatus::Success, std::nullopt, std::nullopt, std::nullopt, "");
+		}
+
+		TEST_METHOD(CanHandleSetGearCommand)
+		{
+			CarTestController testController;
+			testController.car.TurnOnEngine();
+			testController.VerifyCommandHandling("SetGear 1", HandlingStatus::Success, Gear::First, 0, Direction::None, "");
+		}
+
+		TEST_METHOD(CanHandleSetSpeedCommand)
+		{
+			CarTestController testController;
+			testController.car.TurnOnEngine();
+			testController.car.SetGear(Gear::First);
+			testController.VerifyCommandHandling("SetSpeed 30", HandlingStatus::Success, Gear::First, 30, Direction::Forward, "");
+		}
+
+		TEST_METHOD(CanHandleInfoCommand)
+		{
+			CarTestController testController;
+			testController.VerifyCommandHandling("Info", HandlingStatus::Success, std::nullopt, std::nullopt, std::nullopt, 
+				"Engine: Engine is off\nGear: Neutral\nDirection: None\nSpeed: 0 km/h\n");
+
+			testController.car.TurnOnEngine();
+			testController.car.SetGear(Gear::Reverse);
+			testController.car.SetSpeed(20);
+			testController.VerifyCommandHandling("Info", HandlingStatus::Success, Gear::Reverse, 20, Direction::Backward,
+				"Engine: Engine is on\nGear: Reverse\nDirection: Backward\nSpeed: 20 km/h\n");
+		}
+
+		TEST_METHOD(CantSelectInvalidSpeed)
+		{
+			CarTestController testController;
+			testController.car.TurnOnEngine();
+			testController.car.SetGear(Gear::First);
+			testController.VerifyCommandHandling("SetSpeed 50", HandlingStatus::Fail, Gear::First, 0, Direction::None, 
+				"Unable to set speed: current gear doesn't allow this speed\n");
+		}
+
+		TEST_METHOD(CantTurnEngineOffWhileMoving)
+		{
+			CarTestController testController;
+			testController.car.TurnOnEngine();
+			testController.car.SetGear(Gear::First);
+			testController.car.SetSpeed(20);
+			testController.VerifyCommandHandling("EngineOff", HandlingStatus::Fail, Gear::First, 20, Direction::Forward,
+				"Cannot turn the engine off while moving\n");
+		}
+
+		TEST_METHOD(CantAccelerateInNeutralGear)
+		{
+			CarTestController testController;
+			testController.car.TurnOnEngine();
+			testController.VerifyCommandHandling("SetSpeed 20", HandlingStatus::Fail, Gear::Neutral, 0, Direction::None,
+				"Unable to set speed: acceleration in neutral speed is not allowed\n");
+		}
+
+		TEST_METHOD(CantSetReverseGearMovingBackwards)
+		{
+			CarTestController testController;
+			testController.car.TurnOnEngine();
+			testController.car.SetGear(Gear::Reverse);
+			testController.car.SetSpeed(20);
+			testController.car.SetGear(Gear::Neutral);
+			testController.VerifyCommandHandling("SetGear -1", HandlingStatus::Fail, Gear::Neutral, 20, Direction::Backward,
+				"Unable to set gear: wrong speed\n");
 		}
 	};
 }

@@ -97,6 +97,11 @@ GearError Car::CanSetReverseGear() const
 		return GearError::WrongDirection;
 	}
 
+	if (m_speed != 0)
+	{
+		return GearError::WrongSpeed;
+	}
+
 	return GearError::NoError;
 }
 
