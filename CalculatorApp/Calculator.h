@@ -1,18 +1,18 @@
 #pragma once
-#include <optional>
 #include <map>
+#include <optional>
 #include <string>
 
 class Calculator
 {
-private:
-	enum class IdentifierType
-	{
-		Variable,
-		Function
-	};
-
 public:
+	struct Expression;
+
+	using Identifier = std::string;
+	using Value = std::optional<double>;
+	using Variables = std::map<std::string, std::optional<double>>;
+	using Functions = std::map<std::string, Expression>;
+
 	enum class Operation
 	{
 		Addition,
@@ -23,34 +23,31 @@ public:
 
 	struct Expression
 	{
-		std::string leftOperand;
-		std::string rightOperand;
+		Identifier left;
+		Identifier right;
 		Operation operation;
 	};
 
-	using Value = std::optional<double>;
-	using Identifiers = std::map<std::string, IdentifierType>;
-	using Variables = std::map<std::string, std::optional<double>>;
-	using Functions = std::map<std::string, Expression>;
+	void CreateVariable(const Identifier& identifier);
+	void CreateFunction(const Identifier& identifier, const Expression& expression);
+	void CreateFunction(const Identifier& lIdentifier, const Identifier& rIdentifier);
 
-	bool CreateVariable(const std::string& identifier);
-	bool CreateFunction(const std::string& identifier, const Expression& expression);
-	bool CreateFunction(const std::string& lIdentifier, const std::string& rIdentifier);
+	void SetVariable(const Identifier& identifier, double value);
+	void SetVariable(const Identifier& lIdentifier, const Identifier& rIdentifier);
 
-	void SetVariable(const std::string& identifier, double value);
-	void SetVariable(const std::string& lIdentifier, const std::string& rIdentifier);
-
-	Value GetIdentifierValue(const std::string& identifier) const;
+	Value GetIdentifierValue(const Identifier& identifier) const;
 	const Variables& GetVariables() const;
 	const Functions& GetFunctions() const;
 
-	bool VariableExists(const std::string& identifier) const;
-	bool FunctionExists(const std::string& identifier) const;
+	bool IdentifierExists(const Identifier& identifier) const;
 
 private:
+	enum class IdentifierType;
+	using Identifiers = std::map<std::string, IdentifierType>;
+
 	Identifiers m_identifiers{};
 	Variables m_variables{};
 	Functions m_functions{};
 
-	bool IsValidIdentifier(const std::string& identifier) const;
+	bool IsValidIdentifier(const Identifier& identifier) const;
 };

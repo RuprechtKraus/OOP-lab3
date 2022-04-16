@@ -1,39 +1,51 @@
 #include "Calculator.h"
-#include <stdexcept>
 #include <algorithm>
+#include <stdexcept>
 
-bool Calculator::CreateVariable(const std::string& identifier)
+enum class Calculator::IdentifierType
 {
-	// TODO: Добавить проверку на валидность идентификатора
+	Variable,
+	Function
+};
 
-	if (!VariableExists(identifier))
+bool IsEmptyString(const std::string& str);
+
+bool HasInvalidCharacter(const std::string& str);
+
+void Calculator::CreateVariable(const Identifier& identifier)
+{
+	if (!IsValidIdentifier(identifier))
 	{
-		m_variables[identifier] = std::nullopt;
-		m_identifiers[identifier] = IdentifierType::Variable;
-		return true;
+		throw std::invalid_argument("Invalid identifier");
 	}
 
-	return false;
+	if (IdentifierExists(identifier))
+	{
+		throw std::runtime_error("Identifier already exists");
+	}
+
+	m_variables[identifier] = std::nullopt;
+	m_identifiers[identifier] = IdentifierType::Variable;
 }
 
-bool Calculator::CreateFunction(const std::string& identifier, const Expression& expression)
-{
-	//TODO: Добавить код
-}
-
-bool Calculator::CreateFunction(const std::string& lIdentifier, const std::string& rIdentifier)
+void Calculator::CreateFunction(const Identifier& identifier, const Expression& expression)
 {
 	// TODO: Добавить код
 }
 
-void Calculator::SetVariable(const std::string& identifier, double value)
+void Calculator::CreateFunction(const Identifier& lIdentifier, const Identifier& rIdentifier)
+{
+	// TODO: Добавить код
+}
+
+void Calculator::SetVariable(const Identifier& identifier, double value)
 {
 	// TODO: Добавить проверку на валидность идентификатора
 
 	m_variables[identifier] = value;
 }
 
-void Calculator::SetVariable(const std::string& lName, const std::string& rName)
+void Calculator::SetVariable(const Identifier& lName, const Identifier& rName)
 {
 	// TODO: Добавить проверку что правый идентификатор не является функцией
 }
@@ -48,7 +60,7 @@ const Calculator::Functions& Calculator::GetFunctions() const
 	return m_functions;
 }
 
-Calculator::Value Calculator::GetIdentifierValue(const std::string& name) const
+Calculator::Value Calculator::GetIdentifierValue(const Identifier& name) const
 {
 	auto it = m_variables.find(name);
 
@@ -60,18 +72,31 @@ Calculator::Value Calculator::GetIdentifierValue(const std::string& name) const
 	return it->second;
 }
 
-bool Calculator::VariableExists(const std::string& identifier) const
+bool Calculator::IdentifierExists(const Identifier& identifier) const
 {
-	return m_variables.find(identifier) != m_variables.cend() ? true : false;
+	return m_identifiers.find(identifier) != m_identifiers.cend() ? true : false;
 }
 
-bool Calculator::FunctionExists(const std::string& identifier) const
+bool Calculator::IsValidIdentifier(const Identifier& identifier) const
 {
-	//TODO: Добавить код поиска идентификатора функции
+	if (IsEmptyString(identifier) || 
+		HasInvalidCharacter(identifier) || 
+		std::isdigit(identifier[0]))
+	{
+		return false;
+	};
+
+	return true;
 }
 
-bool Calculator::IsValidIdentifier(const std::string& identifier) const
+bool IsEmptyString(const std::string& str)
 {
-	//TODO: Добавить код
-	return false;
+	return str.empty() || str.find_first_not_of(' ') == std::string::npos;
+}
+
+bool HasInvalidCharacter(const std::string& str)
+{
+	return std::find_if(str.cbegin(), str.cend(), [](char c) {
+		return !std::isalnum(c) && c != '_';
+	}) != str.cend();
 }
