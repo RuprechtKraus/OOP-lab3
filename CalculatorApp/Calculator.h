@@ -9,12 +9,13 @@ public:
 	struct Expression;
 
 	using Identifier = std::string;
-	using Value = std::optional<double>;
-	using Variables = std::map<std::string, std::optional<double>>;
+	using Value = double;
+	using Variables = std::map<std::string, std::optional<Value>>;
 	using Functions = std::map<std::string, Expression>;
 
 	enum class Operation
 	{
+		None,
 		Addition,
 		Substraction,
 		Multiplication,
@@ -23,19 +24,19 @@ public:
 
 	struct Expression
 	{
-		Identifier left;
-		Identifier right;
-		Operation operation;
+		Identifier left{};
+		Identifier right{};
+		Operation operation{};
 	};
 
 	void CreateVariable(const Identifier& identifier);
 	void CreateFunction(const Identifier& identifier, const Expression& expression);
 	void CreateFunction(const Identifier& lIdentifier, const Identifier& rIdentifier);
 
-	void SetVariable(const Identifier& identifier, double value);
+	void SetVariable(const Identifier& identifier, Value value);
 	void SetVariable(const Identifier& lIdentifier, const Identifier& rIdentifier);
 
-	Value GetIdentifierValue(const Identifier& identifier) const;
+	std::optional<Value> GetIdentifierValue(const Identifier& identifier) const;
 	const Variables& GetVariables() const;
 	const Functions& GetFunctions() const;
 
@@ -50,4 +51,9 @@ private:
 	Functions m_functions{};
 
 	bool IsValidIdentifier(const Identifier& identifier) const;
+	std::optional<Value> CalculateFunction(const Identifier& identifier) const;
+	std::optional<Value> Addition(std::optional<Value> left, std::optional<Value> right) const;
+	std::optional<Value> Substraction(std::optional<Value> left, std::optional<Value> right) const;
+	std::optional<Value> Multiplication(std::optional<Value> left, std::optional<Value> right) const;
+	std::optional<Value> Division(std::optional<Value> left, std::optional<Value> right) const;
 };

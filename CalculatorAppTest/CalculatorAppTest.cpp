@@ -28,7 +28,8 @@ namespace CalculatorAppTest
 			auto testedFunction = [&calc]() { calc.CreateVariable("x"); };
 
 			calc.CreateVariable("x");
-			Assert::ExpectException<std::runtime_error>(testedFunction, L"Created existing variable");
+			Assert::ExpectException<std::runtime_error>(testedFunction, 
+				L"Created existing variable");
 		}
 
 		TEST_METHOD(CantCreateVariableWithInvalidIdentifier)
@@ -54,7 +55,8 @@ namespace CalculatorAppTest
 			calc.CreateVariable("x");
 			calc.SetVariable("x", 5);
 
-			Assert::IsTrue(calc.GetIdentifierValue("x") == 5, L"Identifier value is not as expected");
+			Assert::IsTrue(calc.GetIdentifierValue("x") == 5, 
+				L"Identifier value is not as expected");
 		}
 
 		TEST_METHOD(CanSetExistingVariableWithIdentifier)
@@ -67,14 +69,16 @@ namespace CalculatorAppTest
 			calc.CreateVariable("y");
 			calc.SetVariable("y", "x");
 
-			Assert::IsTrue(calc.GetIdentifierValue("y") == 5, L"Identifier value is not as expected");
+			Assert::IsTrue(calc.GetIdentifierValue("y") == 5,
+				L"Identifier value is not as expected");
 		}
 
 		TEST_METHOD(CanSetNotExistingVariable)
 		{
 			Calculator calc{};
 			calc.SetVariable("x", 10);
-			Assert::IsTrue(calc.GetIdentifierValue("x") == 10, L"Identifier value is not as expected");
+			Assert::IsTrue(calc.GetIdentifierValue("x") == 10,
+				L"Identifier value is not as expected");
 		}
 
 		TEST_METHOD(CanSetNotExistingVariableWithIdentifier)
@@ -82,14 +86,16 @@ namespace CalculatorAppTest
 			Calculator calc{};
 			calc.SetVariable("x", 10);
 			calc.SetVariable("y", "x");
-			Assert::IsTrue(calc.GetIdentifierValue("y") == 10, L"Identifier value is not as expected");
+			Assert::IsTrue(calc.GetIdentifierValue("y") == 10, 
+				L"Identifier value is not as expected");
 		}
 
 		TEST_METHOD(GetValueOfUninitializedVariable)
 		{
 			Calculator calc{};
 			calc.CreateVariable("x");
-			Assert::IsFalse(calc.GetIdentifierValue("x").has_value(), L"Uninitialized identifer has value");
+			Assert::IsFalse(calc.GetIdentifierValue("x").has_value(), 
+				L"Uninitialized identifer has value");
 		}
 
 		TEST_METHOD(CanCreateFunctionUsingExpression)
@@ -101,8 +107,29 @@ namespace CalculatorAppTest
 				Calculator::Operation::Addition
 			};
 
+			calc.CreateVariable("x");
+			calc.CreateVariable("y");
 			calc.CreateFunction("XplusY", expression);
+
 			Assert::IsTrue(calc.IdentifierExists("XplusY"));
+		}
+
+		TEST_METHOD(GetValueOfVariableSetWithFunction)
+		{
+			Calculator calc{};
+			Calculator::Expression expression{
+				"x",
+				"y",
+				Calculator::Operation::Addition
+			};
+
+			calc.SetVariable("x", 5);
+			calc.SetVariable("y", 10);
+			calc.CreateFunction("XplusY", expression);
+			calc.SetVariable("sum", "XplusY");
+
+			Assert::IsTrue(calc.GetIdentifierValue("sum") == 15, 
+				L"Function result is not as expected");
 		}
 
 		TEST_METHOD(CanCreateFunctionFromAnotherIdentifier)
@@ -114,6 +141,8 @@ namespace CalculatorAppTest
 				Calculator::Operation::Addition
 			};
 
+			calc.CreateVariable("x");
+			calc.CreateVariable("y");
 			calc.CreateFunction("XplusY", expression);
 			calc.CreateFunction("YplusX", "XplusY");
 
@@ -131,8 +160,12 @@ namespace CalculatorAppTest
 
 			auto testedFunction = [&calc, &expression]() { calc.CreateFunction("XplusY", expression); };
 
+			calc.CreateVariable("x");
+			calc.CreateVariable("y");
 			calc.CreateFunction("XplusY", expression);
-			Assert::ExpectException<std::runtime_error>(testedFunction, L"Created function with existing identifier");
+
+			Assert::ExpectException<std::runtime_error>(testedFunction, 
+				L"Created function with existing identifier");
 		}
 
 		TEST_METHOD(CantCreateFunctionWithInvalidIdentifier)
@@ -149,12 +182,28 @@ namespace CalculatorAppTest
 				calc.CreateFunction("X minus Y", { "x", "y", Calculator::Operation::Substraction }); 
 			};
 
+			calc.CreateVariable("x");
+			calc.CreateVariable("y");
+			calc.CreateVariable("seven");
+
 			Assert::ExpectException<std::invalid_argument>(createFunWithDotInName,
 				L"Created function with invalid identifier");
 			Assert::ExpectException<std::invalid_argument>(createFunWithFirstDigitInName,
 				L"Created function with invalid identifier");
 			Assert::ExpectException<std::invalid_argument>(createFunWithSpaceInName,
 				L"Created function with invalid identifier");
+		}
+
+		TEST_METHOD(CantCreateFunctionWithNotExistingArgumentIdentifiers)
+		{
+			Calculator calc{};
+
+			auto testedFunction = [&calc]() { 
+				calc.CreateFunction("XplusY", { "x", "y", Calculator::Operation::Addition }); 
+			};
+
+			Assert::ExpectException<std::runtime_error>(testedFunction, 
+				L"Created function with not existing argument identifiers");
 		}
 
 		TEST_METHOD(CalculateFunctionWithInitializedVariables)
@@ -165,7 +214,8 @@ namespace CalculatorAppTest
 			calc.SetVariable("y", 10);
 			calc.CreateFunction("XmultiplyY", { "x", "y", Calculator::Operation::Multiplication });
 
-			Assert::IsTrue(calc.GetIdentifierValue("XmultiplyY") == 50, L"Calculated function result is not as expected");
+			Assert::IsTrue(calc.GetIdentifierValue("XmultiplyY") == 50, 
+				L"Function result is not as expected");
 		}
 
 		TEST_METHOD(CalculateFunctionWithUninitializedVariables)
@@ -176,7 +226,8 @@ namespace CalculatorAppTest
 			calc.CreateVariable("y");
 			calc.CreateFunction("XmultiplyY", { "x", "y", Calculator::Operation::Multiplication });
 
-			Assert::IsFalse(calc.GetIdentifierValue("XmultiplyY").has_value(), L"Calculated function result is not as expected");
+			Assert::IsFalse(calc.GetIdentifierValue("XmultiplyY").has_value(),
+				L"Function result is not as expected");
 		}
 
 		TEST_METHOD(CalculateFunctionWithAnotherFunctionAsOneIdentifier)
@@ -189,7 +240,8 @@ namespace CalculatorAppTest
 			calc.CreateFunction("XmultiplyY", { "x", "y", Calculator::Operation::Multiplication });
 			calc.CreateFunction("XYplusZ", { "XmultiplyY", "z", Calculator::Operation::Addition });
 
-			Assert::IsTrue(calc.GetIdentifierValue("XYplusZ") == 70, L"Calculated function result is not as expected");
+			Assert::IsTrue(calc.GetIdentifierValue("XYplusZ") == 70,
+				L"Function result is not as expected");
 		}
 
 		TEST_METHOD(CalculateFunctionWithAnotherFunctionThatHasNoResult)
@@ -201,7 +253,8 @@ namespace CalculatorAppTest
 			calc.CreateFunction("XmultiplyY", { "x", "y", Calculator::Operation::Multiplication });
 			calc.CreateFunction("XYplusZ", { "XmultiplyY", "z", Calculator::Operation::Addition });
 
-			Assert::IsFalse(calc.GetIdentifierValue("XYplusZ").has_value(), L"Calculated function result is not as expected");
+			Assert::IsFalse(calc.GetIdentifierValue("XYplusZ").has_value(), 
+				L"Function result is not as expected");
 		}
 	};
 }
