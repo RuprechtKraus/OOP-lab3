@@ -2,6 +2,7 @@
 #include <map>
 #include <optional>
 #include <string>
+#include <limits>
 
 class Calculator
 {

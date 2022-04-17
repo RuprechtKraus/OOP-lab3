@@ -251,10 +251,12 @@ namespace CalculatorAppTest
 			calc.CreateVariable("x");
 			calc.CreateVariable("y");
 			calc.CreateFunction("XmultiplyY", { "x", "y", Calculator::Operation::Multiplication });
-			calc.CreateFunction("XYplusZ", { "XmultiplyY", "z", Calculator::Operation::Addition });
 
-			Assert::IsFalse(calc.GetIdentifierValue("XYplusZ").has_value(), 
-				L"Function result is not as expected");
+			auto testedFunction = [&calc]() { 
+				calc.CreateFunction("XYplusZ", { "XmultiplyY", "z", Calculator::Operation::Addition }); 
+			};
+
+			Assert::ExpectException<std::runtime_error>(testedFunction, L"Function result is not as expected");
 		}
 	};
 }

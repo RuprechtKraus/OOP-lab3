@@ -113,7 +113,7 @@ void Calculator::SetVariable(const Identifier& lIdentifier, const Identifier& rI
 	}
 	else
 	{
-		m_identifiers[lIdentifier] = IdentifierType::Function;
+		m_identifiers[lIdentifier] = IdentifierType::Variable;
 		m_variables[lIdentifier] = CalculateFunction(rIdentifier);
 	}
 }
