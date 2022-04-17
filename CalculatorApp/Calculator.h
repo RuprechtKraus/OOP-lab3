@@ -10,9 +10,10 @@ public:
 	struct Expression;
 
 	using Identifier = std::string;
-	using Value = double;
-	using Variables = std::map<std::string, std::optional<Value>>;
+	using ValueType = double;
+	using Variables = std::map<std::string, ValueType>;
 	using Functions = std::map<std::string, Expression>;
+	static constexpr ValueType NaNValue = std::numeric_limits<ValueType>::quiet_NaN();
 
 	enum class Operation
 	{
@@ -34,10 +35,10 @@ public:
 	void CreateFunction(const Identifier& identifier, const Expression& expression);
 	void CreateFunction(const Identifier& lIdentifier, const Identifier& rIdentifier);
 
-	void SetVariable(const Identifier& identifier, Value value);
+	void SetVariable(const Identifier& identifier, ValueType value);
 	void SetVariable(const Identifier& lIdentifier, const Identifier& rIdentifier);
 
-	std::optional<Value> GetIdentifierValue(const Identifier& identifier) const;
+	ValueType GetIdentifierValue(const Identifier& identifier) const;
 	const Variables& GetVariables() const;
 	const Functions& GetFunctions() const;
 
@@ -52,9 +53,9 @@ private:
 	Functions m_functions{};
 
 	bool IsValidIdentifier(const Identifier& identifier) const;
-	std::optional<Value> CalculateFunction(const Identifier& identifier) const;
-	std::optional<Value> Addition(std::optional<Value> left, std::optional<Value> right) const;
-	std::optional<Value> Substraction(std::optional<Value> left, std::optional<Value> right) const;
-	std::optional<Value> Multiplication(std::optional<Value> left, std::optional<Value> right) const;
-	std::optional<Value> Division(std::optional<Value> left, std::optional<Value> right) const;
+	ValueType CalculateFunction(const Identifier& identifier) const;
+	ValueType Addition(const Identifier& lIdentifier, const Identifier& rIdentifier) const;
+	ValueType Substraction(const Identifier& lIdentifier, const Identifier& rIdentifier) const;
+	ValueType Multiplication(const Identifier& lIdentifier, const Identifier& rIdentifier) const;
+	ValueType Division(const Identifier& lIdentifier, const Identifier& rIdentifier) const;
 };

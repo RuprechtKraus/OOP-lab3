@@ -94,7 +94,8 @@ namespace CalculatorAppTest
 		{
 			Calculator calc{};
 			calc.CreateVariable("x");
-			Assert::IsFalse(calc.GetIdentifierValue("x").has_value(), 
+
+			Assert::IsTrue(std::isnan(calc.GetIdentifierValue("x")), 
 				L"Uninitialized identifer has value");
 		}
 
@@ -226,7 +227,19 @@ namespace CalculatorAppTest
 			calc.CreateVariable("y");
 			calc.CreateFunction("XmultiplyY", { "x", "y", Calculator::Operation::Multiplication });
 
-			Assert::IsFalse(calc.GetIdentifierValue("XmultiplyY").has_value(),
+			Assert::IsTrue(std::isnan(calc.GetIdentifierValue("XmultiplyY")),
+				L"Function result is not as expected");
+		}
+
+		TEST_METHOD(DivisionByZeroReturnsNaN)
+		{
+			Calculator calc{};
+
+			calc.SetVariable("x", 10);
+			calc.SetVariable("y", 0);
+			calc.CreateFunction("XdividebyY", { "x", "y", Calculator::Operation::Division });
+
+			Assert::IsTrue(std::isnan(calc.GetIdentifierValue("XdividebyY")),
 				L"Function result is not as expected");
 		}
 

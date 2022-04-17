@@ -24,7 +24,7 @@ void Calculator::CreateVariable(const Identifier& identifier)
 		throw std::runtime_error("Identifier already exists");
 	}
 
-	m_variables[identifier] = std::nullopt;
+	m_variables[identifier] = NaNValue;
 	m_identifiers[identifier] = IdentifierType::Variable;
 }
 
@@ -78,7 +78,7 @@ void Calculator::CreateFunction(const Identifier& lIdentifier, const Identifier&
 	}
 }
 
-void Calculator::SetVariable(const Identifier& identifier, Value value)
+void Calculator::SetVariable(const Identifier& identifier, ValueType value)
 {
 	if (!IsValidIdentifier(identifier))
 	{
@@ -128,7 +128,7 @@ const Calculator::Functions& Calculator::GetFunctions() const
 	return m_functions;
 }
 
-std::optional<Calculator::Value> Calculator::GetIdentifierValue(const Identifier& identifier) const
+Calculator::ValueType Calculator::GetIdentifierValue(const Identifier& identifier) const
 {
 	if (!IdentifierExists(identifier))
 	{
@@ -145,7 +145,7 @@ std::optional<Calculator::Value> Calculator::GetIdentifierValue(const Identifier
 	}
 }
 
-std::optional<Calculator::Value> Calculator::CalculateFunction(const Identifier& identifier) const
+Calculator::ValueType Calculator::CalculateFunction(const Identifier& identifier) const
 {
 	auto& expression{ m_functions.at(identifier) };
 
@@ -154,64 +154,52 @@ std::optional<Calculator::Value> Calculator::CalculateFunction(const Identifier&
 	case Operation::None:
 		return GetIdentifierValue(expression.left);
 	case Operation::Addition:
-		return Addition(GetIdentifierValue(expression.left), GetIdentifierValue(expression.right));
+		return Addition(expression.left, expression.right);
 	case Operation::Substraction:
-		return Substraction(GetIdentifierValue(expression.left), GetIdentifierValue(expression.right));
+		return Substraction(expression.left, expression.right);
 	case Operation::Multiplication:
-		return Multiplication(GetIdentifierValue(expression.left), GetIdentifierValue(expression.right));
+		return Multiplication(expression.left, expression.right);
 	case Operation::Division:
-		return Division(GetIdentifierValue(expression.left), GetIdentifierValue(expression.right));
+		return Division(expression.left, expression.right);
 	default:
 		throw std::invalid_argument("Unknown operation");
 	}
 }
 
-std::optional<Calculator::Value> Calculator::Addition(
-	std::optional<Value> left,
-	std::optional<Value> right) const
+Calculator::ValueType Calculator::Addition(
+	const Identifier& lIdentifier, 
+	const Identifier& rIdentifier) const
 {
-	if (!left || !right)
-	{
-		return std::nullopt;
-	}
-
-	return left.value() + right.value();
+	return GetIdentifierValue(lIdentifier) + GetIdentifierValue(rIdentifier);
 }
 
-std::optional<Calculator::Value> Calculator::Substraction(
-	std::optional<Value> left,
-	std::optional<Value> right) const
+Calculator::ValueType Calculator::Substraction(
+	const Identifier& lIdentifier,
+	const Identifier& rIdentifier) const
 {
-	if (!left || !right)
-	{
-		return std::nullopt;
-	}
-
-	return left.value() - right.value();
+	return GetIdentifierValue(lIdentifier) - GetIdentifierValue(rIdentifier);
 }
 
-std::optional<Calculator::Value> Calculator::Multiplication(
-	std::optional<Value> left,
-	std::optional<Value> right) const
+Calculator::ValueType Calculator::Multiplication(
+	const Identifier& lIdentifier,
+	const Identifier& rIdentifier) const
 {
-	if (!left || !right)
-	{
-		return std::nullopt;
-	}
-
-	return left.value() * right.value();
+	return GetIdentifierValue(lIdentifier) * GetIdentifierValue(rIdentifier);
 }
 
-std::optional<Calculator::Value> Calculator::Division(
-	std::optional<Value> left,
-	std::optional<Value> right) const
+Calculator::ValueType Calculator::Division(
+	const Identifier& lIdentifier,
+	const Identifier& rIdentifier) const
 {
-	if (!left || !right)
+	ValueType left = GetIdentifierValue(lIdentifier);
+	ValueType right = GetIdentifierValue(rIdentifier);
+
+	if (right == 0)
 	{
-		return std::nullopt;
+		return NaNValue;
 	}
 
-	return left.value() / right.value();
+	return left / right;
 }
 
 bool Calculator::IdentifierExists(const Identifier& identifier) const
