@@ -68,7 +68,7 @@ void Calculator::CreateFunction(const Identifier& lIdentifier, const Identifier&
 
 	if (m_identifiers[rIdentifier] == IdentifierType::Variable)
 	{
-		m_identifiers[lIdentifier] = IdentifierType::Variable;
+		m_identifiers[lIdentifier] = IdentifierType::Function;
 		m_functions[lIdentifier] = { rIdentifier, "", Operation::None };
 	}
 	else
@@ -167,7 +167,7 @@ Calculator::ValueType Calculator::CalculateFunction(const Identifier& identifier
 }
 
 Calculator::ValueType Calculator::Addition(
-	const Identifier& lIdentifier, 
+	const Identifier& lIdentifier,
 	const Identifier& rIdentifier) const
 {
 	return GetIdentifierValue(lIdentifier) + GetIdentifierValue(rIdentifier);

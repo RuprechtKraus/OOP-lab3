@@ -1,8 +1,14 @@
 ﻿#include "pch.h"
 #include "CppUnitTest.h"
 #include "../CalculatorApp/Calculator.h"
+#include "../CalculatorApp/CalculatorController.h"
+#include <sstream>
+#include <string>
+#include <optional>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+
+std::optional<double> ConvertToDouble(const std::string& str);
 
 namespace CalculatorAppTest
 {
@@ -271,5 +277,72 @@ namespace CalculatorAppTest
 
 			Assert::ExpectException<std::runtime_error>(testedFunction, L"Function result is not as expected");
 		}
+	};
+
+	TEST_CLASS(CalculatorControllerTest)
+	{
+		public:
+
+			TEST_METHOD(CanHandleCreateVariableCommand)
+			{
+				input = std::istringstream("var x\nprint x\nexit");
+				m_controller.BeginControl();
+
+				Assert::IsTrue(output.str() == "nan\n", L"Variable wasn't correctly created");
+			} 
+
+			TEST_METHOD(CanHandleSetVariableCommand)
+			{
+				input = std::istringstream("let x=5\nlet y=10\nlet z=x\nprint x\nprint y\nprint z\nexit");
+				m_controller.BeginControl();
+
+				Assert::IsTrue(output.str() == "5.00\n10.00\n5.00\n", L"Variables were set incorrectly");
+			}
+
+			TEST_METHOD(CanHandleCreateFunctionCommand)
+			{
+				input = std::istringstream("let x=5\nlet y=10\nfn XPlusY=x+y\nfn YMinusX=y-x\nfn YPlusX=XPlusY\nexit");
+				m_controller.BeginControl();
+
+				Assert::IsTrue(m_calculator.GetFunctions().size() == 3, L"Function wasn't added");
+			}
+
+			TEST_METHOD(CanHandleCalculateFunctionCommand)
+			{
+				input = std::istringstream("let x=3\nlet y=4\nlet z=3.5\nfn XPlusY=x+y\nfn XPlusYDivZ=XPlusY/z\nprint XPlusY\nprint XPlusYDivZ\nexit");
+				m_controller.BeginControl();
+
+				Assert::IsTrue(output.str() == "7.00\n2.00\n", L"Function wasn't added");
+			}
+
+		private:
+			Calculator m_calculator;
+			std::istringstream input;
+			std::ostringstream output;
+			CalculatorController m_controller{ m_calculator, input, output };
+	};
+
+	TEST_CLASS(HelperFunctionsTest)
+	{
+		public:
+
+			TEST_METHOD(CanConvertToDouble)
+			{
+				std::string str{ "56.50" };
+				auto result{ ConvertToDouble(str) };
+
+				Assert::IsTrue(result.value() == 56.50, L"Incorrect convertation");
+			}
+
+			TEST_METHOD(CantConvertToDouble)
+			{
+				std::string str1{ "56.50double" };
+				std::string str2{ "double" };
+				auto result1{ ConvertToDouble(str1) };
+				auto result2{ ConvertToDouble(str2) };
+
+				Assert::IsFalse(result1.has_value(), L"Incorrect convertation");
+				Assert::IsFalse(result2.has_value(), L"Incorrect convertation");
+			}
 	};
 }

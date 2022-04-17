@@ -1,4 +1,4 @@
-#include "pch.h"
+	#include "pch.h"
 #include "CppUnitTest.h"
 #include <sstream>
 #include <optional>
@@ -20,7 +20,8 @@ public:
 	CarTestController()
 		: m_carController(car, input, output){};
 
-	void VerifyCommandHandling(const std::string& command, 
+	void VerifyCommandHandling(
+		const std::string& command, 
 		HandlingStatus expectedHandlingStatus,
 		const std::optional<Gear>& expectedGear, 
 		const std::optional<int>& expectedSpeed,
